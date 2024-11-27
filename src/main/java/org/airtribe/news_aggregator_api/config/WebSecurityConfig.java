@@ -2,7 +2,6 @@ package org.airtribe.news_aggregator_api.config;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
@@ -16,8 +15,7 @@ public class WebSecurityConfig {
 
 	@Bean
 	public PasswordEncoder _passwordEncoder() {
-		return new BCryptPasswordEncoder(11);
-
+		return new BCryptPasswordEncoder();
 	}
 
 	@Bean
@@ -28,11 +26,5 @@ public class WebSecurityConfig {
 				.formLogin(formLogin -> formLogin.defaultSuccessUrl("/api/hello", true).permitAll());
 
 		return http.build();
-	}
-
-	@Bean
-	public void configure(AuthenticationManagerBuilder auth) throws Exception {
-		auth.inMemoryAuthentication()
-				.withUser("root").password("root").roles("USER");
 	}
 }
