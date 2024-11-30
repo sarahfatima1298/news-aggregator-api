@@ -1,6 +1,7 @@
 package org.airtribe.news_aggregator_api.service;
 
 import java.util.List;
+
 import org.airtribe.news_aggregator_api.JwtUtil.JwtUtil;
 import org.airtribe.news_aggregator_api.entity.Role;
 import org.airtribe.news_aggregator_api.entity.User;
@@ -59,7 +60,7 @@ public class UserService implements UserDetailsService {
 
 	public boolean validateTokenAndEnableUser(String tokenValue) {
 		VerificationToken token = _verificationTokenRepository.findByToken(tokenValue);
-		if(token == null) {
+		if (token == null) {
 			return false;
 		}
 		if (token.getExpirationDate().getTime() < System.currentTimeMillis()) {
@@ -100,7 +101,6 @@ public class UserService implements UserDetailsService {
 			return false;
 		}
 
-
 		UserDetails userDetails = loadUserByUsername(email);
 		Authentication authentication = new UsernamePasswordAuthenticationToken(userDetails, password, userDetails.getAuthorities());
 
@@ -112,5 +112,9 @@ public class UserService implements UserDetailsService {
 
 	public List<User> getUsersByName(String email) {
 		return _userRepository.findUserByEmailUnsafe(email);
+	}
+
+	public void updateUser(User user) {
+		_userRepository.save(user);
 	}
 }

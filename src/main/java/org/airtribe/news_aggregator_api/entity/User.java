@@ -1,6 +1,5 @@
 package org.airtribe.news_aggregator_api.entity;
 
-import java.util.ArrayList;
 import java.util.List;
 
 import jakarta.persistence.ElementCollection;
