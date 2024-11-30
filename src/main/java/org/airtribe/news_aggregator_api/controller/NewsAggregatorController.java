@@ -28,7 +28,7 @@ import reactor.core.publisher.Mono;
 
 
 @RestController
-public class RegistrationController {
+public class NewsAggregatorController {
 	@Autowired
 	private WebClient webClient;
 
@@ -37,41 +37,6 @@ public class RegistrationController {
 
 	@Autowired
 	private JwtUtil jwtUtil;
-
-	@PostMapping("/api/register")
-	public User register(@Valid @RequestBody UserModel user, HttpServletRequest request) {
-		User storedUser = userService.register(user);
-		String token = UUID.randomUUID().toString();
-		String applicationUrl = getApplicationUrl(request) + "/api/verifyRegistration?token=" + token;
-		userService.createVerificationToken(storedUser, token);
-		System.out.println("Verification token created for user: " + storedUser.getEmail());
-		System.out.println("Verification url: " + applicationUrl);
-		return storedUser;
-	}
-
-	@PostMapping("/api/verifyRegistration")
-	public String verifyRegistration(@RequestParam String token) {
-		boolean isValid = userService.validateTokenAndEnableUser(token);
-		if (!isValid) {
-			return "Invalid token";
-		}
-		return "User enabled successfully";
-	}
-
-	@PostMapping("/api/login")
-	public String login(@RequestParam String email, @RequestParam String password, HttpSession httpSession) {
-		httpSession.setAttribute("userName", email);
-		return userService.login(email, password);
-	}
-
-	private String getApplicationUrl(HttpServletRequest request) {
-		return request.getScheme() + "://" + request.getServerName() + ":" + request.getServerPort() + request.getContextPath();
-	}
-
-	@GetMapping("/api/hello")
-	public String hello() {
-		return "Hello from news aggregator api";
-	}
 
 	@GetMapping("/api/preferences")
 	public List<Topic> getPreferences(@RequestHeader("Authorization") String token) {
@@ -109,7 +74,8 @@ public class RegistrationController {
 
 		List<Topic> preferences = user.getTopicPreference();
 		String query = preferences.stream().map(Enum::name).collect(Collectors.joining(" OR "));
-		Mono<Result> result = webClient.get()
+
+		return webClient.get()
 				.uri("https://newsapi.org/v2/everything?q=keyword&apiKey=717ac5c1c69148e1bbbf7e16e2567d09&q=" + query)
 				.retrieve().bodyToMono(Result.class)
 				.doFinally(signal -> {
@@ -118,7 +84,5 @@ public class RegistrationController {
 				.doFirst(() -> {
 					System.out.println("Calling News API");
 				});
-
-		return result;
 	}
 }
